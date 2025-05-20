@@ -1,0 +1,122 @@
+﻿@page "/"
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>EventEase - Simplify Event Management</PageTitle>
+
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold mb-3">Discover & Create Amazing Events</h1>
+            <p class="lead mb-4">
+                EventEase makes it simple to find, create, and manage events that bring people together.
+                Whether you're organizing a conference, workshop, or social gathering, we've got you covered.
+            </p>
+            <div class="d-grid gap-2 d-md-flex">
+                <button class="btn btn-primary btn-lg px-4" @onclick="NavigateToEvents">Browse Events</button>
+                <button class="btn btn-outline-secondary btn-lg px-4" @onclick="NavigateToCreateEvent">Create Event</button>
+            </div>
+        </div>
+        <div class="col-md-6 d-none d-md-block">
+            <img src="https://placehold.co/600x400/5D69F9/FFFFFF?text=EventEase" class="img-fluid rounded shadow-lg" alt="EventEase">
+        </div>
+    </div>
+
+    <!-- Featured Events Section -->
+    <div class="py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Featured Events</h2>
+            <a href="/events" class="btn btn-outline-primary">View All</a>
+        </div>
+
+        @if (featuredEvents == null)
+        {
+            <p><em>Loading events...</em></p>
+        }
+        else if (!featuredEvents.Any())
+        {
+            <div class="alert alert-info">No events available at the moment.</div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var evt in featuredEvents)
+                {
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            @if (!string.IsNullOrEmpty(evt.ImageUrl))
+                            {
+                                <img src="@evt.ImageUrl" class="card-img-top" alt="@evt.Title" style="height: 180px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <span class="text-muted">No image</span>
+                                </div>
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@evt.Title</h5>
+                                <p class="card-text text-truncate">@evt.Description</p>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-calendar me-2"></i>
+                                    <small>@evt.Date.ToString("MMM dd, yyyy")</small>
+                                </div>
+                                <a href="@($"events/{evt.Id}")" class="btn btn-sm btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-5 bg-light rounded-3 px-4 mb-5">
+        <h2 class="text-center mb-5">Why Choose EventEase?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="bi bi-calendar-check fs-1 text-primary mb-3"></i>
+                    <h3 class="h4">Easy Event Creation</h3>
+                    <p>Create and publish events in minutes with our intuitive interface.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                    <h3 class="h4">Attendee Management</h3>
+                    <p>Manage registrations, send updates, and track attendance effortlessly.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <i class="bi bi-graph-up fs-1 text-primary mb-3"></i>
+                    <h3 class="h4">Insightful Analytics</h3>
+                    <p>Get valuable insights into your event performance and attendee engagement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Event>? featuredEvents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var events = await EventService.GetPublishedEventsAsync();
+        featuredEvents = events.Take(3).ToList();
+    }
+
+    private void NavigateToEvents()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+
+    private void NavigateToCreateEvent()
+    {
+        NavigationManager.NavigateTo("/events/create");
+    }
+}

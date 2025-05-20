@@ -1,0 +1,107 @@
+@page "/events/{Id:guid}"
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>@(eventItem?.Title ?? "Event Details") - EventEase</PageTitle>
+
+<div class="container mt-4">
+    @if (eventItem == null)
+    {
+        @if (loading)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Event Not Found</h4>
+                <p>The event you're looking for doesn't exist or has been removed.</p>
+                <hr>
+                <p class="mb-0">
+                    <a href="/events" class="alert-link">Return to events list</a>
+                </p>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="mb-3">@eventItem.Title</h1>
+
+                @if (!string.IsNullOrEmpty(eventItem.ImageUrl))
+                {
+                    <img src="@eventItem.ImageUrl" class="img-fluid rounded mb-4" alt="@eventItem.Title" style="max-height: 400px; width: 100%; object-fit: cover;">
+                }
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">About this event</h5>
+                        <p class="card-text">@eventItem.Description</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Event Details</h5>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-calendar-event me-3 fs-4"></i>
+                            <div>
+                                <div class="fw-bold">Date & Time</div>
+                                <div>@eventItem.Date.ToString("dddd, MMMM d, yyyy")</div>
+                                <div>@eventItem.Date.ToString("h:mm tt")</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-geo-alt me-3 fs-4"></i>
+                            <div>
+                                <div class="fw-bold">Location</div>
+                                <div>@eventItem.Location</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-4">
+                            <i class="bi bi-people me-3 fs-4"></i>
+                            <div>
+                                <div class="fw-bold">Capacity</div>
+                                <div>@eventItem.Capacity people</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mb-2">Register Now</button>
+                        <button class="btn btn-outline-secondary w-100" @onclick="NavigateToEvents">Back to Events</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Event? eventItem;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        eventItem = await EventService.GetEventByIdAsync(Id);
+        loading = false;
+    }
+
+    private void NavigateToEvents()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}

@@ -1,0 +1,8 @@
+This file is a placeholder to ensure the images directory exists.
+
+In a real application, you would place actual image files here:
+- tech-conference.jpg
+- music-festival.jpg
+- charity-run.jpg
+
+For now, the application will use external placeholder images.

@@ -1,0 +1,132 @@
+@page "/events/create"
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Create Event - EventEase</PageTitle>
+
+<div class="container mt-4">
+    <h1>Create New Event</h1>
+    
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <EditForm Model="@newEvent" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger mb-4" />
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Event Title</label>
+                    <InputText id="title" @bind-Value="newEvent.Title" class="form-control" />
+                    <ValidationMessage For="@(() => newEvent.Title)" class="text-danger" />
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <InputTextArea id="description" @bind-Value="newEvent.Description" class="form-control" rows="5" />
+                    <ValidationMessage For="@(() => newEvent.Description)" class="text-danger" />
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="date" class="form-label">Date and Time</label>
+                        <InputDate id="date" @bind-Value="newEvent.Date" class="form-control" />
+                        <ValidationMessage For="@(() => newEvent.Date)" class="text-danger" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="capacity" class="form-label">Capacity</label>
+                        <InputNumber id="capacity" @bind-Value="newEvent.Capacity" class="form-control" />
+                        <ValidationMessage For="@(() => newEvent.Capacity)" class="text-danger" />
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <InputText id="location" @bind-Value="newEvent.Location" class="form-control" />
+                    <ValidationMessage For="@(() => newEvent.Location)" class="text-danger" />
+                </div>
+                
+                <div class="mb-3">
+                    <label for="imageUrl" class="form-label">Image URL (optional)</label>
+                    <InputText id="imageUrl" @bind-Value="newEvent.ImageUrl" class="form-control" />
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <InputCheckbox id="isPublished" @bind-Value="newEvent.IsPublished" class="form-check-input" />
+                    <label class="form-check-label" for="isPublished">Publish immediately</label>
+                </div>
+                
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="NavigateToEvents">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Event Creation Tips</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Provide a clear, descriptive title
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Include all important details in the description
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Specify an accurate location
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Set a realistic capacity for your venue
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            Add an image to make your event stand out
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Event newEvent = new Event();
+    private bool isSubmitting = false;
+
+    private async Task HandleValidSubmit()
+    {
+        if (isSubmitting) return;
+        
+        isSubmitting = true;
+        
+        try
+        {
+            bool success = await EventService.CreateEventAsync(newEvent);
+            
+            if (success)
+            {
+                NavigationManager.NavigateTo("/events");
+            }
+            else
+            {
+                // Handle error
+            }
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void NavigateToEvents()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}
